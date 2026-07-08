@@ -994,6 +994,7 @@ button { font-family: inherit; cursor: pointer; }
   padding: 20px 28px 28px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-auto-rows: auto;
   gap: 12px;
   user-select: none;
   -webkit-user-select: none;
@@ -1021,6 +1022,7 @@ button { font-family: inherit; cursor: pointer; }
   aspect-ratio: 1;
   cursor: pointer;
   border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
   transition: border-color 0.2s ease, transform 0.2s var(--ease);
 }
 
