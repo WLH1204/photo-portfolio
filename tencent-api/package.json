@@ -1,0 +1,9 @@
+{
+  "name": "photo-portfolio-tencent-api",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.14.0",
+    "jsonwebtoken": "^9.0.0"
+  }
+}
