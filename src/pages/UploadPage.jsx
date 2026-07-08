@@ -41,7 +41,7 @@ export default function UploadPage() {
     if (droppedFiles.length > 0) {
       addFiles(droppedFiles)
     }
-  }, [files])
+  }, [])
 
   // 文件选择处理
   const handleFileSelect = useCallback((e) => {
@@ -50,7 +50,7 @@ export default function UploadPage() {
       addFiles(selectedFiles)
     }
     e.target.value = ''
-  }, [files])
+  }, [])
 
   const addFiles = (newFiles) => {
     const fileItems = newFiles.map(file => ({

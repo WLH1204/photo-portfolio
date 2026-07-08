@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
 import {
   setApiUrl, getApiUrl, isConfigured, isLoggedIn,
-  login, logout, syncFromCloud
+  login, logout
 } from '../api/client.js'
+import { syncFromCloud } from '../utils/photoStorage'
 import { cityData } from '../data/cityData'
 
 const ALL_CITY_IDS = Object.keys(cityData)
@@ -32,6 +33,31 @@ export default function ApiSetupPanel({ onSyncComplete }) {
     setTimeout(() => setMessage(''), 2000)
   }, [url])
 
+  // 同步
+  const handleSync = useCallback(async () => {
+    setLoading(true)
+    setMessage('正在同步…')
+    let syncedCount = 0
+    let skippedCount = 0
+    try {
+      for (const cityId of ALL_CITY_IDS) {
+        const result = await syncFromCloud(cityId)
+        if (result === true) syncedCount++
+        else skippedCount++
+      }
+      if (syncedCount > 0) {
+        setMessage(`同步完成（${syncedCount} 个城市）`)
+      } else if (skippedCount > 0) {
+        setMessage('同步失败，请检查网络连接或 API 配置')
+      }
+      onSyncComplete?.()
+      window.dispatchEvent(new CustomEvent('cloud-sync-complete'))
+    } catch (e) {
+      setMessage('同步失败: ' + e.message)
+    }
+    setLoading(false)
+  }, [onSyncComplete])
+
   // 登录
   const handleLogin = useCallback(async () => {
     if (!password.trim()) {
@@ -55,26 +81,7 @@ export default function ApiSetupPanel({ onSyncComplete }) {
       setMessage('连接失败: ' + e.message)
     }
     setLoading(false)
-  }, [password])
-
-  // 同步
-  const handleSync = useCallback(async () => {
-    setLoading(true)
-    setMessage('正在同步…')
-    try {
-      // 同步所有城市的数据
-      for (const cityId of ALL_CITY_IDS) {
-        await syncFromCloud(cityId)
-      }
-      setMessage('同步完成')
-      onSyncComplete?.()
-      // 发全局事件，让所有打开的页面刷新数据
-      window.dispatchEvent(new CustomEvent('cloud-sync-complete'))
-    } catch (e) {
-      setMessage('同步失败: ' + e.message)
-    }
-    setLoading(false)
-  }, [onSyncComplete])
+  }, [password, handleSync])
 
   // 登出
   const handleLogout = useCallback(() => {

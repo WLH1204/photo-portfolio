@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import CityCard from '../components/CityCard'
+import { getCityUploadedPhotos } from '../utils/photoStorage'
+import { cityData } from '../data/cityData'
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+const CITY_IDS = Object.keys(cityData)
 
 const cities = [
   {
@@ -10,7 +14,6 @@ const cities = [
     name: '湛江',
     nameEn: 'Zhanjiang',
     subtitle: '碧海蓝天 · 南国港城',
-    count: 24,
     index: '01',
     gradient: 'linear-gradient(135deg, #0c4a6e 0%, #0e7490 50%, #06b6d4 100%)',
     accent: '#22d3ee',
@@ -21,7 +24,6 @@ const cities = [
     name: '昆明',
     nameEn: 'Kunming',
     subtitle: '春城花都 · 四季如诗',
-    count: 18,
     index: '02',
     gradient: 'linear-gradient(135deg, #14532d 0%, #15803d 50%, #84cc16 100%)',
     accent: '#a3e635',
@@ -32,7 +34,6 @@ const cities = [
     name: '贵阳',
     nameEn: 'Guiyang',
     subtitle: '林城山水 · 黔地秘境',
-    count: 16,
     index: '03',
     gradient: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #64748b 100%)',
     accent: '#cbd5e1',
@@ -43,7 +44,6 @@ const cities = [
     name: '柳州',
     nameEn: 'Liuzhou',
     subtitle: '壶城水韵 · 工业记忆',
-    count: 12,
     index: '04',
     gradient: 'linear-gradient(135deg, #451a03 0%, #78350f 50%, #d97706 100%)',
     accent: '#fbbf24',
@@ -92,6 +92,18 @@ export default function HomePage() {
   const rotationRef = useRef(Math.PI / 4)
   const pausedRef = useRef(false)
   const transitionRef = useRef(null) // { startVal, endVal, startTime }
+
+  // 动态计算各城市照片数量（静态数据 + 用户上传）
+  const cityCounts = useMemo(() => {
+    const counts = {}
+    for (const cityId of CITY_IDS) {
+      const staticCount = (cityData[cityId]?.photos || []).length
+      const uploadedCount = (getCityUploadedPhotos(cityId) || []).length
+      counts[cityId] = staticCount + uploadedCount
+    }
+    return counts
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncTick])
 
   useEffect(() => {
     pausedRef.current = paused
@@ -209,7 +221,7 @@ export default function HomePage() {
               return (
                 <CityCard
                   key={city.id}
-                  city={city}
+                  city={{ ...city, count: cityCounts[city.id] || 0 }}
                   transform={t}
                   onRotateToFront={() => handleDotClick(index)}
                 />

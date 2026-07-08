@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { replacePhoto, deletePhoto, updatePhotoMeta, fileToDataURL } from '../utils/photoStorage'
+import { replacePhoto, deletePhoto, updatePhotoMeta, fileToDataURL, compressImage } from '../utils/photoStorage'
 
 export default function ImmersiveViewer({ city, photos, initialIndex, onClose, onPhotoUpdate }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
@@ -164,6 +164,18 @@ export default function ImmersiveViewer({ city, photos, initialIndex, onClose, o
     if (file && idx !== null && idx !== undefined) {
       const dataURL = await fileToDataURL(file)
       replacePhoto(city.id, localPhotos[idx].id, dataURL)
+      // 同步替换到云端
+      try {
+        const { replacePhoto: cloudReplace, isConfigured, isLoggedIn } = await import('../api/client.js')
+        if (isConfigured() && isLoggedIn()) {
+          let base64 = dataURL
+          if (base64.length > 1000000) {
+            base64 = await compressImage(dataURL)
+          }
+          const cleanBase64 = base64.replace(/^data:image\/\w+;base64,/, '')
+          await cloudReplace(city.id, localPhotos[idx].id, cleanBase64, 'jpg')
+        }
+      } catch {}
       onPhotoUpdate?.()
     }
     e.target.value = ''
