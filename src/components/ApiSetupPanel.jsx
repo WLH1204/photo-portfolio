@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import {
   setApiUrl, getApiUrl, isConfigured, isLoggedIn,
-  login, logout
+  login, logout, testConnection
 } from '../api/client.js'
 import { syncFromCloud } from '../utils/photoStorage'
 import { cityData } from '../data/cityData'
@@ -31,6 +31,31 @@ export default function ApiSetupPanel({ onSyncComplete }) {
     setStatus('configured')
     setMessage('API 地址已保存')
     setTimeout(() => setMessage(''), 2000)
+  }, [url])
+
+  // 测试连接
+  const handleTestConnection = useCallback(async () => {
+    if (!url.trim()) {
+      setMessage('请先输入 API 地址')
+      return
+    }
+    setApiUrl(url.trim())
+    setLoading(true)
+    setMessage('正在测试连接…')
+    try {
+      const info = await testConnection()
+      setMessage(`连接成功！版本: ${info.version}, 存储桶: ${info.bucket}`)
+      setStatus('configured')
+      setTimeout(() => setMessage(''), 4000)
+    } catch (e) {
+      const msg = e.message || ''
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+        setMessage('无法连接服务器，请检查 API 地址是否正确、SCF 是否已部署，以及浏览器控制台是否有 CORS 错误')
+      } else {
+        setMessage('连接失败: ' + msg)
+      }
+    }
+    setLoading(false)
   }, [url])
 
   // 同步
@@ -78,7 +103,12 @@ export default function ApiSetupPanel({ onSyncComplete }) {
         setMessage('密码错误')
       }
     } catch (e) {
-      setMessage('连接失败: ' + e.message)
+      const msg = e.message || ''
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+        setMessage('连接失败：无法访问服务器，请先用"测试连接"按钮检查网络')
+      } else {
+        setMessage('连接失败: ' + msg)
+      }
     }
     setLoading(false)
   }, [password, handleSync])
@@ -117,13 +147,22 @@ export default function ApiSetupPanel({ onSyncComplete }) {
           <input
             type="text"
             className="api-setup-input"
-            placeholder="https://xxx.workers.dev"
+            placeholder="https://service-xxx.gz.apigw.tencentcs.com/release"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             disabled={isLoggedIn()}
           />
           {!isLoggedIn() && (
-            <button className="api-setup-btn-sm" onClick={handleSaveUrl}>保存</button>
+            <>
+              <button className="api-setup-btn-sm" onClick={handleSaveUrl}>保存</button>
+              <button
+                className="api-setup-btn-sm"
+                onClick={handleTestConnection}
+                disabled={loading}
+              >
+                {loading ? '…' : '测试'}
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -170,7 +209,7 @@ export default function ApiSetupPanel({ onSyncComplete }) {
 
       {/* 状态消息 */}
       {message && (
-        <div className={`api-setup-msg ${message.includes('失败') || message.includes('错误') ? 'error' : ''}`}>
+        <div className={`api-setup-msg ${message.includes('失败') || message.includes('错误') || message.includes('无法连接') ? 'error' : ''}`}>
           {message}
         </div>
       )}

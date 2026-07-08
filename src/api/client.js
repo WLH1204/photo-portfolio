@@ -46,6 +46,24 @@ export function isConfigured() {
   return !!API_BASE
 }
 
+// 测试连接（GET 请求，无需认证，不会触发 CORS 预检）
+export async function testConnection() {
+  if (!API_BASE) throw new Error('API 地址未配置')
+  let base = API_BASE
+  let path = '/api/diag'
+  if (base.endsWith('/api') && path.startsWith('/api/')) {
+    path = path.substring(4)
+  }
+  if (base.endsWith('/api/') && path.startsWith('/api/')) {
+    path = path.substring(4)
+  }
+  const response = await fetch(`${base}${path}`)
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`)
+  }
+  return await response.json()
+}
+
 // 通用请求 - 自动处理 API_BASE 可能带或不带 /api 的情况
 async function apiRequest(path, options = {}) {
   if (!API_BASE) throw new Error('API 未配置')
