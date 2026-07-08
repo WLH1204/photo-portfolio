@@ -341,7 +341,11 @@ export default function CityPage() {
   useEffect(() => {
     const handler = () => setRefreshKey(k => k + 1)
     window.addEventListener('cloud-sync-complete', handler)
-    return () => window.removeEventListener('cloud-sync-complete', handler)
+    window.addEventListener('storage-init-complete', handler)
+    return () => {
+      window.removeEventListener('cloud-sync-complete', handler)
+      window.removeEventListener('storage-init-complete', handler)
+    }
   }, [])
 
   // 点击外部关闭封面选择下拉

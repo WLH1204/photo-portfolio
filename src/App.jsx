@@ -17,6 +17,7 @@ function App() {
     const autoSync = async () => {
       // 初始化 IndexedDB 存储（从 localStorage 迁移 + 加载缓存）
       await initStorage()
+      window.dispatchEvent(new Event('storage-init-complete'))
       // 等 1 秒让页面加载完
       await new Promise(r => setTimeout(r, 1000))
       if (isConfigured() && isLoggedIn()) {

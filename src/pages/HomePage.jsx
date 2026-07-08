@@ -101,7 +101,11 @@ export default function HomePage() {
   useEffect(() => {
     const handler = () => setSyncTick(t => t + 1)
     window.addEventListener('cloud-sync-complete', handler)
-    return () => window.removeEventListener('cloud-sync-complete', handler)
+    window.addEventListener('storage-init-complete', handler)
+    return () => {
+      window.removeEventListener('cloud-sync-complete', handler)
+      window.removeEventListener('storage-init-complete', handler)
+    }
   }, [])
 
   useEffect(() => {

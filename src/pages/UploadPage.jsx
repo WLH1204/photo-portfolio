@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { cityData } from '../data/cityData'
-import { appendSinglePhoto, flushPhotos, fileToDataURL, syncPhotosToCloud } from '../utils/photoStorage'
+import { appendSinglePhoto, flushPhotos, fileToDataURL, syncPhotosToCloud, syncSettingsToCloud } from '../utils/photoStorage'
 
 const CITIES = Object.values(cityData).map(c => ({
   id: c.id,
