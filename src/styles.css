@@ -994,7 +994,6 @@ button { font-family: inherit; cursor: pointer; }
   padding: 20px 28px 28px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  grid-auto-rows: auto;
   gap: 12px;
   user-select: none;
   -webkit-user-select: none;
