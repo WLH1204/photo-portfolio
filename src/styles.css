@@ -988,11 +988,12 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .batch-modal-grid {
-  max-height: calc(85vh - 130px);
+  height: calc(85vh - 130px);
   overflow-y: auto;
   padding: 20px 28px 28px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-auto-rows: 120px;
   gap: 12px;
   user-select: none;
   -webkit-user-select: none;
