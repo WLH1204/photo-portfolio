@@ -988,7 +988,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .batch-modal-grid {
-  flex: 1;
+  height: calc(85vh - 130px);
   overflow-y: auto;
   padding: 20px 28px 28px;
   display: grid;
