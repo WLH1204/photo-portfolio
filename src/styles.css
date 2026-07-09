@@ -989,7 +989,6 @@ button { font-family: inherit; cursor: pointer; }
 
 .batch-modal-grid {
   flex: 1;
-  min-height: 0;
   overflow-y: auto;
   padding: 20px 28px 28px;
   display: grid;
@@ -998,7 +997,6 @@ button { font-family: inherit; cursor: pointer; }
   user-select: none;
   -webkit-user-select: none;
   cursor: crosshair;
-  align-content: start;
 }
 
 .batch-modal-grid::-webkit-scrollbar {
